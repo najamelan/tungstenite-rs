@@ -231,7 +231,9 @@ impl WebSocketContext {
         Stream: Read + Write,
     {
         // Do not write to already closed connections.
-        self.state.check_active()?;
+        if !self.state.is_active() {
+            return Err(Error::AlreadyClosed);
+        }
 
         if let Some(max_send_queue) = self.config.max_send_queue {
             if self.send_queue.len() >= max_send_queue {
